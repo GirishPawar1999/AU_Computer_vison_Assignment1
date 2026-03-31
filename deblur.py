@@ -189,15 +189,15 @@ for file_name in tqdm(image_files):
     rl_psnr, rl_ssim = calculate_metrics(sharp, rl_result)
     cv2.imwrite(os.path.join(RL_OUTPUT_DIR, file_name), rl_result)
 
-    # # GANDeblur
-    # gan_start = time.time()
-    # gan_result = run_deblurgan(blurred)
-    # gan_time = time.time() - gan_start
-    # gan_psnr, gan_ssim = calculate_metrics(sharp, gan_result)
-    # cv2.imwrite(os.path.join(GAN_OUTPUT_DIR, file_name), gan_result)
+    # GANDeblur
+    gan_start = time.time()
+    gan_result = run_deblurgan(blurred)
+    gan_time = time.time() - gan_start
+    gan_psnr, gan_ssim = calculate_metrics(sharp, gan_result)
+    cv2.imwrite(os.path.join(GAN_OUTPUT_DIR, file_name), gan_result)
 
-    # # Save comparison image
-    # save_comparison(sharp, blurred, rl_result, gan_result, file_name)
+    # Save comparison image
+    save_comparison(sharp, blurred, rl_result, gan_result, file_name)
 
     # Save results
     results.append({
@@ -207,57 +207,57 @@ for file_name in tqdm(image_files):
         "rl_psnr": rl_psnr,
         "rl_ssim": rl_ssim,
         "rl_runtime_sec": rl_time,
-#         "gan_psnr": gan_psnr,
-#         "gan_ssim": gan_ssim,
-#         "gan_runtime_sec": gan_time
+        "gan_psnr": gan_psnr,
+        "gan_ssim": gan_ssim,
+        "gan_runtime_sec": gan_time
     })
 
-# # =========================================
-# # [8] Save Results
-# # =========================================
-# results_df = pd.DataFrame(results)
-# results_df.to_csv(os.path.join(OUTPUT_DIR, "metrics_full.csv"), index=False)
+# =========================================
+# [8] Save Results
+# =========================================
+results_df = pd.DataFrame(results)
+results_df.to_csv(os.path.join(OUTPUT_DIR, "metrics_full.csv"), index=False)
 
-# summary_df = pd.DataFrame({
-#     "Method": ["Richardson-Lucy", "DeblurGAN-v2"],
-#     "Average PSNR": [results_df["rl_psnr"].mean(), results_df["gan_psnr"].mean()],
-#     "Average SSIM": [results_df["rl_ssim"].mean(), results_df["gan_ssim"].mean()],
-#     "Average Runtime (sec)": [results_df["rl_runtime_sec"].mean(), results_df["gan_runtime_sec"].mean()]
-# })
-# summary_df.to_csv(os.path.join(OUTPUT_DIR, "summary_full.csv"), index=False)
-# print(summary_df)
+summary_df = pd.DataFrame({
+    "Method": ["Richardson-Lucy", "DeblurGAN-v2"],
+    "Average PSNR": [results_df["rl_psnr"].mean(), results_df["gan_psnr"].mean()],
+    "Average SSIM": [results_df["rl_ssim"].mean(), results_df["gan_ssim"].mean()],
+    "Average Runtime (sec)": [results_df["rl_runtime_sec"].mean(), results_df["gan_runtime_sec"].mean()]
+})
+summary_df.to_csv(os.path.join(OUTPUT_DIR, "summary_full.csv"), index=False)
+print(summary_df)
 
-# category_summary = results_df.groupby("blur_category").agg({
-#     "rl_psnr": "mean",
-#     "rl_ssim": "mean",
-#     "gan_psnr": "mean",
-#     "gan_ssim": "mean"
-# }).reset_index()
-# category_summary.to_csv(os.path.join(OUTPUT_DIR, "category_summary.csv"), index=False)
-# print("\nBlur Category Summary:\n", category_summary)
+category_summary = results_df.groupby("blur_category").agg({
+    "rl_psnr": "mean",
+    "rl_ssim": "mean",
+    "gan_psnr": "mean",
+    "gan_ssim": "mean"
+}).reset_index()
+category_summary.to_csv(os.path.join(OUTPUT_DIR, "category_summary.csv"), index=False)
+print("\nBlur Category Summary:\n", category_summary)
 
-# # =========================================
-# # [9] Plotting
-# # =========================================
-# plt.figure(figsize=(8, 5))
-# plt.bar(summary_df["Method"], summary_df["Average PSNR"])
-# plt.ylabel("PSNR")
-# plt.title("Average PSNR Comparison")
-# plt.savefig(os.path.join(OUTPUT_DIR, "psnr_comparison.png"))
-# plt.close()
+# =========================================
+# [9] Plotting
+# =========================================
+plt.figure(figsize=(8, 5))
+plt.bar(summary_df["Method"], summary_df["Average PSNR"])
+plt.ylabel("PSNR")
+plt.title("Average PSNR Comparison")
+plt.savefig(os.path.join(OUTPUT_DIR, "psnr_comparison.png"))
+plt.close()
 
-# plt.figure(figsize=(8, 5))
-# plt.bar(summary_df["Method"], summary_df["Average SSIM"])
-# plt.ylabel("SSIM")
-# plt.title("Average SSIM Comparison")
-# plt.savefig(os.path.join(OUTPUT_DIR, "ssim_comparison.png"))
-# plt.close()
+plt.figure(figsize=(8, 5))
+plt.bar(summary_df["Method"], summary_df["Average SSIM"])
+plt.ylabel("SSIM")
+plt.title("Average SSIM Comparison")
+plt.savefig(os.path.join(OUTPUT_DIR, "ssim_comparison.png"))
+plt.close()
 
-# plt.figure(figsize=(8, 5))
-# plt.bar(summary_df["Method"], summary_df["Average Runtime (sec)"])
-# plt.ylabel("Seconds")
-# plt.title("Average Runtime Comparison")
-# plt.savefig(os.path.join(OUTPUT_DIR, "runtime_comparison.png"))
-# plt.close()
+plt.figure(figsize=(8, 5))
+plt.bar(summary_df["Method"], summary_df["Average Runtime (sec)"])
+plt.ylabel("Seconds")
+plt.title("Average Runtime Comparison")
+plt.savefig(os.path.join(OUTPUT_DIR, "runtime_comparison.png"))
+plt.close()
 
-# print("Processing Complete. Evaluations saved in CSV files.")
+print("Processing Complete. Evaluations saved in CSV files.")
