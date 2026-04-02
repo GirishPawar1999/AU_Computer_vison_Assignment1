@@ -1,0 +1,12 @@
+class_id,class_name,AP
+0,person,1.0
+3,motorcycle,1.0
+14,bird,0.1
+24,backpack,1.0
+25,umbrella,0.1
+26,handbag,0.7666666666666666
+45,bowl,0.1
+58,potted plant,1.0
+63,laptop,0.1
+66,keyboard,1.0
+74,clock,1.0
