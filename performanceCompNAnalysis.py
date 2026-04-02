@@ -44,8 +44,6 @@ def run_task_5_analysis():
         print(f"Analyzing {domain} domain...")
         
         # MEMORY OPTIMIZATION:
-        # We set batch=1 and imgsz=320 to prevent CUDA Out of Memory on 4GB VRAM
-        # We use device='cpu' if you still get CUDA errors, though '0' (GPU) is preferred
         try:
             metrics = model.val(
                 data="dataset.yaml", 
@@ -66,7 +64,7 @@ def run_task_5_analysis():
                 "Recall": metrics.results_dict.get('metrics/recall(B)', 0)
             })
         except RuntimeError as e:
-            print(f"❌ CUDA error on {domain}. Try restarting your PC to clear VRAM or use device='cpu'.")
+            print(f"CUDA error on {domain}. Try restarting your PC to clear VRAM or use device='cpu'.")
             break
 
     # 5. Save Results
