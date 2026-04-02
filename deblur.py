@@ -25,7 +25,7 @@ from scipy.ndimage import convolve, maximum_filter, minimum_filter
  
 BLUR_DIR = "data/data/blur/images"
 SHARP_DIR = "data/data/sharp/images"
-OUTPUT_DIR = "results"
+OUTPUT_DIR = "task2-result"
 RL_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "richardson_lucy")
 GAN_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "gandeblur")
 COMPARISON_DIR = os.path.join(OUTPUT_DIR, "comparisons")
