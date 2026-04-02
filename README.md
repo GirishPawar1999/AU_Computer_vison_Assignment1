@@ -274,4 +274,4 @@ All AI interactions are documented in the **AI-Assisted Logs** file included in 
 
 ## 📝 License
 
-This project is submitted as academic coursework for **Athabasca University**. All code is for educational purposes only.
+This project is submitted as academic coursework for **Adelaide University**. All code is for educational purposes only.
