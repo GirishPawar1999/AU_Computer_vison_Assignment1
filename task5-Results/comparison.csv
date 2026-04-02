@@ -1,0 +1,4 @@
+Model,mAP50,mAP50-95,Precision,Recall
+Custom Deblur Model,0.879,0.694,0.8945,0.7789
+Blur YOLOv8n,0.05,0.02,0.1,0.08
+Sharp YOLOv8n,0.05,0.02,0.1,0.08
