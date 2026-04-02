@@ -1,82 +1,84 @@
 import os
-import shutil
-import pandas as pd
 import torch
+import pandas as pd
 from ultralytics import YOLO
 
-def run_task_5_analysis():
-    # 1. Configuration
-    SOURCE_MODEL = "runs/detect/task4_training/deblur_detector/weights/best.pt"
-    RESULTS_DIR = "task5-Results"
-    LOCAL_MODEL_NAME = os.path.join(RESULTS_DIR, "best_deblur_detector.pt")
+def run_task5_analysis():
+    # --- CONFIGURATION ---
+    MODEL_PATH = "runs/detect/task4_training/deblur_detector13/weights/best.pt"
+    SUBSET_DIR = "deblurred_dataset"  
+    RESULTS_DIR = "task5-results"
+    RUN_NAME = "deblurred_detailed_analysis"
+
+    if not os.path.exists(MODEL_PATH):
+        print(f"⚠️ Model not found at {MODEL_PATH}")
+        return 
     
-    # Define domains for comparison
-    DATA_DOMAINS = {
-        "Blurred": "data/data/blur/images",
-        "Sharp": "data/data/sharp/images",
-        "Deblurred": "deblurred_dataset"
-    }
+    # Load model
+    model = YOLO(MODEL_PATH)
+    print(f"✅ Model Classes: {model.names}") # Let's see what the model actually expects
     
+    # 1. Setup YAML (Standard YOLO format)
     if not os.path.exists(RESULTS_DIR):
-        os.makedirs(RESULTS_DIR)
-
-    # 2. Check for the trained model
-    if os.path.exists(SOURCE_MODEL):
-        shutil.copy(SOURCE_MODEL, LOCAL_MODEL_NAME)
-        model_to_use = LOCAL_MODEL_NAME
-        print(f"✅ Using trained model: {LOCAL_MODEL_NAME}")
-    else:
-        print(f"⚠️ Trained model not found. Using pretrained yolov8n.pt.")
-        model_to_use = "yolov8n.pt"
-
-    # 3. Initialize Model
-    model = YOLO(model_to_use)
-    comparison_data = []
-
-    print("\nStarting Task 5 Analysis...")
-    print("-" * 50)
-
-    # 4. Evaluation Loop
-    for domain, folder in DATA_DOMAINS.items():
-        if not os.path.exists(folder):
-            continue
-            
-        print(f"Analyzing {domain} domain...")
+        os.makedirs(RESULTS_DIR, exist_ok=True)
         
-        # MEMORY OPTIMIZATION:
-        try:
-            metrics = model.val(
-                data="dataset.yaml", 
-                split='test', 
-                batch=1,         # Minimal memory usage
-                imgsz=320,       # Reduced size for analysis stability
-                plots=True, 
-                verbose=False, 
-                project=RESULTS_DIR, 
-                name=domain,
-                device=0         # Use GPU (change to 'cpu' if it crashes again)
-            )
-            
-            comparison_data.append({
-                "Domain": domain,
-                "mAP50": metrics.results_dict.get('metrics/mAP50(B)', 0),
-                "Precision": metrics.results_dict.get('metrics/precision(B)', 0),
-                "Recall": metrics.results_dict.get('metrics/recall(B)', 0)
-            })
-        except RuntimeError as e:
-            print(f"CUDA error on {domain}. Try restarting your PC to clear VRAM or use device='cpu'.")
-            break
+    subset_yaml = os.path.join(RESULTS_DIR, "task5_config.yaml")
+    abs_subset_path = os.path.abspath(SUBSET_DIR)
 
-    # 5. Save Results
-    if comparison_data:
-        df = pd.DataFrame(comparison_data)
-        df.to_csv(os.path.join(RESULTS_DIR, "performance_summary.csv"), index=False)
-        print("\n" + "="*40)
-        print(df.to_string(index=False))
-        print("="*40)
+    with open(subset_yaml, 'w') as f:
+        # We point everything to the same folder for a single-set validation
+        f.write(f"path: {abs_subset_path}\n")
+        f.write(f"train: .\n") 
+        f.write(f"val: .\n")
+        f.write(f"names:\n")
+        for idx, name in model.names.items():
+            f.write(f"  {idx}: {name}\n")
 
-if __name__ == '__main__':
-    # Optional: Force clean VRAM before starting
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-    run_task_5_analysis()
+    # 2. Run Validation
+    try:
+        print(f"🚀 Running validation on {SUBSET_DIR}...")
+        results = model.val(
+            data=subset_yaml,
+            imgsz=320,
+            plots=True,     
+            project=RESULTS_DIR,
+            name=RUN_NAME,
+            exist_ok=True,
+            conf=0.1,    # Increased confidence to ignore background noise
+            iou=0.45,    # Standard NMS threshold
+            device=0 if torch.cuda.is_available() else 'cpu'
+        )
+
+        # 3. Save Summary CSV
+        # Path logic: YOLO creates RESULTS_DIR/RUN_NAME
+        final_save_path = os.path.join(RESULTS_DIR, RUN_NAME)
+        
+        # Extract metrics using the correct keys for YOLOv8/v11
+        # result.results_dict contains the main stats
+        m = results.results_dict
+        stats = {
+            "Metric": ["mAP50", "mAP50-95", "Precision", "Recall"],
+            "Value": [
+                round(m.get('metrics/mAP50(B)', 0), 4),
+                round(m.get('metrics/mAP50-95(B)', 0), 4),
+                round(m.get('metrics/precision(B)', 0), 4),
+                round(m.get('metrics/recall(B)', 0), 4)
+            ]
+        }
+        
+        df = pd.DataFrame(stats)
+        csv_output = os.path.join(final_save_path, "summary_metrics.csv")
+        df.to_csv(csv_output, index=False)
+        
+        print("-" * 30)
+        print(df)
+        print("-" * 30)
+        print(f"✅ Analysis complete. CSV saved to: {csv_output}")
+
+    except Exception as e:
+        print(f"❌ An error occurred: {e}")
+        import traceback
+        traceback.print_exc()
+
+if __name__ == "__main__":
+    run_task5_analysis()
