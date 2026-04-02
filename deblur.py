@@ -1,6 +1,6 @@
-# =========================================
+# [TASK-2]: Image Deblurring  
 # [1] Imports
-# =========================================
+ 
 import os
 import cv2
 import time
@@ -20,9 +20,9 @@ from tensorflow.keras.optimizers import Adam
 from scipy.signal.windows import gaussian
 from scipy.ndimage import convolve, maximum_filter, minimum_filter
 
-# =========================================
+ 
 # [2] Config
-# =========================================
+ 
 BLUR_DIR = "data/data/blur/images"
 SHARP_DIR = "data/data/sharp/images"
 OUTPUT_DIR = "results"
@@ -38,9 +38,8 @@ ITERATIONS = 30
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print("Device Active: ", DEVICE)
 
-# =========================================
+
 # [3] Gaussian PSF Creation for RL
-# =========================================
 PSF_SIZE = 21  # Should be odd
 PSF_SIGMA = 3
 
@@ -55,9 +54,7 @@ plt.title('Point Spread Function (PSF)')
 plt.colorbar()
 plt.show()
 
-# =========================================
 # [4] Advanced Richardson-Lucy with Edge Handling
-# =========================================
 def deblur_richardson_lucy_rgb(image, psf, iterations=30):
     """Deblurs an RGB image with edge-padding to prevent ringing artifacts."""
     pad_size = psf.shape[0] // 2  # Symmetric padding
@@ -76,9 +73,7 @@ def deblur_richardson_lucy_rgb(image, psf, iterations=30):
     restored_cropped = restored[pad_size:-pad_size, pad_size:-pad_size, :]
     return np.clip(restored_cropped * 255, 0, 255).astype(np.uint8)
 
-# =========================================
 # [5] GANDeblur Model
-# =========================================
 def residual_block(x, filters):
     shortcut = x
     x = Conv2D(filters, kernel_size=3, padding='same')(x)
@@ -125,9 +120,9 @@ def run_deblurgan(image):
     prediction = cv2.cvtColor(prediction, cv2.COLOR_RGB2BGR)
     return prediction
 
-# =========================================
+ 
 # [6] Metrics and Comparison Functions
-# =========================================
+ 
 def blur_score(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     return cv2.Laplacian(gray, cv2.CV_64F).var()
@@ -161,9 +156,9 @@ def save_comparison(sharp, blurred, rl_img, gan_img, filename):
     plt.savefig(os.path.join(COMPARISON_DIR, filename))
     plt.close()
 
-# =========================================
+ 
 # [7] Main Processing Loop
-# =========================================
+ 
 results = []
 image_files = sorted(os.listdir(BLUR_DIR))
 
@@ -212,9 +207,9 @@ for file_name in tqdm(image_files):
         "gan_runtime_sec": gan_time
     })
 
-# =========================================
+ 
 # [8] Save Results
-# =========================================
+ 
 results_df = pd.DataFrame(results)
 results_df.to_csv(os.path.join(OUTPUT_DIR, "metrics_full.csv"), index=False)
 
@@ -236,9 +231,9 @@ category_summary = results_df.groupby("blur_category").agg({
 category_summary.to_csv(os.path.join(OUTPUT_DIR, "category_summary.csv"), index=False)
 print("\nBlur Category Summary:\n", category_summary)
 
-# =========================================
+ 
 # [9] Plotting
-# =========================================
+ 
 plt.figure(figsize=(8, 5))
 plt.bar(summary_df["Method"], summary_df["Average PSNR"])
 plt.ylabel("PSNR")
