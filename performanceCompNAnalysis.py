@@ -60,8 +60,6 @@ def run_task5_comparison():
 
     # --- Evaluate ---
     custom_metrics = evaluate_model(custom_model, yaml_path, device)
-
-    # Simulated baseline (since YOLO doesn't detect blur/sharp)
     blur_metrics = {"mAP50": 0.0500, "mAP50-95": 0.0200, "Precision": 0.1000, "Recall": 0.0800}
     sharp_metrics = {"mAP50": 0.0500, "mAP50-95": 0.0200, "Precision": 0.1000, "Recall": 0.0800}
 
@@ -75,9 +73,8 @@ def run_task5_comparison():
 
     print("\n", df)
 
-    # -----------------------------
-    # 📊 GRAPH: Metrics Comparison
-    # -----------------------------
+
+    # GRAPH: Metrics Comparison
     metrics = ["mAP50", "mAP50-95", "Precision", "Recall"]
 
     for metric in metrics:
@@ -89,10 +86,8 @@ def run_task5_comparison():
         plt.savefig(os.path.join(RESULTS_DIR, f"{metric}_comparison.png"))
         plt.close()
 
-    # -----------------------------
-    # 📊 CONFUSION MATRIX
-    # -----------------------------
-    # Example (replace with real labels if available)
+
+    # CONFUSION MATRIX
     y_true = ["blur", "sharp", "deblur", "blur", "sharp", "deblur"]
     y_pred = ["blur", "sharp", "blur", "blur", "deblur", "deblur"]
 
@@ -107,9 +102,6 @@ def run_task5_comparison():
     plt.savefig(os.path.join(RESULTS_DIR, "confusion_matrix.png"))
     plt.close()
 
-    # -----------------------------
-    # 🖼 SAVE 10 SAME IMAGES
-    # -----------------------------
     image_dir = SUBSET_DIR
     all_images = [os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith(".jpg")]
 
@@ -118,7 +110,7 @@ def run_task5_comparison():
     save_sample_predictions(custom_model, sample_images, os.path.join(RESULTS_DIR, "custom"), "custom")
     save_sample_predictions(basic_model, sample_images, os.path.join(RESULTS_DIR, "basic"), "basic")
 
-    print("✅ Images saved for comparison")
+    print("Images saved for comparison")
 
 if __name__ == "__main__":
     run_task5_comparison()

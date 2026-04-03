@@ -28,7 +28,7 @@ def prepare_and_train():
     images = [f for f in os.listdir(DEBLUR_DIR) if f.lower().endswith(valid_exts)]
 
     if not images:
-        print(f"❌ Error: No images found in {DEBLUR_DIR}")
+        print(f"Error: No images found in {DEBLUR_DIR}")
         return
 
     random.shuffle(images)
@@ -44,13 +44,12 @@ def prepare_and_train():
     }
 
     # 5. File Distribution
-    print(f"📂 Moving {len(images)} files...")
+    print(f"Moving {len(images)} files...")
     img_count = 0
     lbl_count = 0
     
     for split, files in splits.items():
         for img_name in files:
-            # FIX: Match label name EXACTLY to image name (e.g., deblurred_0001.png -> deblurred_0001.txt)
             label_name = os.path.splitext(img_name)[0] + ".txt"
             
             src_img = os.path.join(DEBLUR_DIR, img_name)
@@ -62,8 +61,7 @@ def prepare_and_train():
                 img_count += 1
                 lbl_count += 1
             else:
-                # Warning if an image has no matching label
-                print(f"⚠️ Warning: Missing label for {img_name} (Expected {label_name})")
+                print(f"Warning: Missing label for {img_name} (Expected {label_name})")
 
     print(f"✅ Prepared {img_count} images and {lbl_count} labels.")
 
@@ -94,7 +92,7 @@ def prepare_and_train():
             print(f"Precision: {final.get('metrics/precision(B)', 0):.4f}")
             print(f"Recall: {final.get('metrics/recall(B)', 0):.4f}")
     else:
-        print("❌ Training aborted: No labels were successfully moved.")
+        print("Training aborted: No labels were successfully moved.")
 
 if __name__ == '__main__':
     prepare_and_train()

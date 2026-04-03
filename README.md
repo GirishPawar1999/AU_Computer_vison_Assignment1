@@ -1,6 +1,6 @@
 # 🖼️ AU Computer Vision – Assignment 1
 
-> **Course:** Computer Vision | **Institution:** Athabasca University  
+> **Course:** Computer Vision | **Institution:** Adelaide University  
 > **Author:** Girish Pawar  
 > **Repository:** [AU_Computer_vison_Assignment1](https://github.com/GirishPawar1999/AU_Computer_vison_Assignment1/tree/main)
 
@@ -134,7 +134,7 @@ This task investigates techniques to recover sharp images from blurred inputs, u
 #### How to Run
 
 ```bash
-python deblur.py --input <blurred_image> --output task2-Results/
+python deblur.py 
 ```
 
 #### Results
@@ -160,7 +160,7 @@ This task applies pre-trained object detection models to detect and localise obj
 #### How to Run
 
 ```bash
-python objectDetection.py --input <image_or_folder> --output task3-Results/
+python objectDetection.py 
 ```
 
 #### Results
@@ -200,7 +200,7 @@ python generateLabels.py
 python TrainingDataPreparation.py
 
 # Step 3 – Train (adjust paths as needed)
-yolo detect train data=data.yaml model=yolov8n.pt epochs=50 imgsz=640 project=task4-Results
+yolo detect train data=data.yaml model=yolov8n.pt epochs=30 imgsz=640 project=task4-Results
 ```
 
 #### Results
@@ -253,9 +253,9 @@ Output charts and analysis tables are saved to `task5-results/`.
 
 This assignment made use of AI tools (such as ChatGPT / Claude) to assist with:
 
-- Debugging Python code and resolving OpenCV/PyTorch compatibility issues
-- Understanding mathematical concepts (e.g., Wiener filter derivation, YOLO loss functions)
-- Suggesting code structure and best practices for dataset preparation
+- Understanding mathematical concepts (e.g., Richardman-lucy, GAN,YOLO loss functions)
+- Git Control
+- Dependencies installation for RTX3050
 - Reviewing and improving documentation
 
 All AI interactions are documented in the **AI-Assisted Logs** file included in the repository. These logs are provided transparently in accordance with the course's academic integrity policy. All code was reviewed, understood, and validated by the author.
